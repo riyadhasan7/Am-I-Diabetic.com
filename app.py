@@ -19,6 +19,17 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
+# Email Configuration
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = 'your-email@gmail.com'
+app.config['MAIL_PASSWORD'] = 'your-email-password'
+
+mail = Mail(app)
+s = URLSafeTimedSerializer(app.secret_key)
+
 # Connect to MySQL Database
 db = mysql.connector.connect(
     host="localhost",
@@ -124,6 +135,64 @@ def logout():
     logout_user()
     flash("You have been logged out.", "info")
     return redirect(url_for('login'))
+
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email')
+
+        # Check if the email exists in the database
+        cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
+        user = cursor.fetchone()
+
+        if user:
+            token = s.dumps(email, salt='password-reset')
+            reset_url = url_for('reset_password', token=token, _external=True)
+
+            #  Send reset email
+            msg = Message("Password Reset Request",
+                          sender="your-email@gmail.com",
+                          recipients=[email])
+            msg.body = f"Click the link below to reset your password:\n{reset_url}\n\nIf you didn't request this, ignore this email."
+            mail.send(msg)
+
+            flash("A password reset link has been sent to your email.", "success")
+            return redirect(url_for('login'))
+        else:
+            flash("No account found with that email.", "danger")
+
+    return render_template('forgot_password.html')
+
+
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        email = s.loads(token, salt='password-reset', max_age=3600)  # ✅ Link expires in 1 hour
+    except Exception:
+        flash("The password reset link is invalid or has expired.", "danger")
+        return redirect(url_for('forgot_password'))
+
+    if request.method == 'POST':
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+
+        if new_password != confirm_password:
+            flash("Passwords do not match.", "danger")
+            return redirect(url_for('reset_password', token=token))
+
+        hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
+
+        # Update password in MySQL
+        cursor.execute("UPDATE users SET password_hash = %s WHERE email = %s", (hashed_password, email))
+        db.commit()
+
+        flash("Your password has been updated! You can now log in.", "success")
+        return redirect(url_for('login'))
+
+    return render_template('reset_password.html', token=token)
+
+
 
 
 
