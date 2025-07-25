@@ -75,12 +75,15 @@ The final model (Gradient Boosting) was selected based on performance metrics (a
    cd am-i-diabetic
 
  2. **Install dependencies**
+    ```bash
     pip install -r requirements.txt
 
- 3. **Start the backend (Flask)**
+ 4. **Start the backend (Flask)**
+     ```bash
      python app.py
 
- 5. **Start the frontend (React)**
+ 6. **Start the frontend (React)**
+     ```bash
      cd frontend
      npm install
      npm start
