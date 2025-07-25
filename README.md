@@ -39,7 +39,6 @@ Users must create an account to access the prediction system, which ensures data
 - Random Forest
 - Gradient Boosting (Final chosen model)
 - Decision Tree
-- Artificial Neural Network (ANN)
 
 The final model (Gradient Boosting) was selected based on performance metrics (accuracy, precision, recall, F1-score) and ability to handle complex feature interactions.
 
@@ -53,7 +52,6 @@ The final model (Gradient Boosting) was selected based on performance metrics (a
 | Backend     | Flask (Python)                          |
 | ML Modeling | Scikit-learn, Pandas, NumPy             |
 | Database    | MySQL                                   |
-| Deployment  | Streamlit / Render (for dashboard)      |
 
 ---
 
