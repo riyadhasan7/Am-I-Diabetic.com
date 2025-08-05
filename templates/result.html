@@ -9,37 +9,150 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Add Chart.js for visualization -->
     <style>
         body {
-            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+            background: linear-gradient(120deg, #e3f0ff 0%, #f8fbff 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .main-center-wrapper {
+            flex: 1 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 90px); /* 90px = approx. navbar height */
+            padding: 0;
+        }
+        .custom-navbar {
+            background: linear-gradient(90deg, #1976d2 0%, #42a5f5 100%);
+            min-height: 70px;
+            box-shadow: 0 4px 16px rgba(25, 118, 210, 0.08);
+        }
+        .custom-navbar .navbar-brand {
+            color: #fff !important;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
+        }
+        .custom-navbar .btn,
+        .custom-navbar .nav-link {
+            color: #fff !important;
+            border-color: #fff !important;
+            font-weight: 500;
+            margin-left: 0.5rem;
+            margin-right: 0.5rem;
+            transition: background 0.2s, color 0.2s;
+        }
+        .custom-navbar .btn-outline-primary:hover,
+        .custom-navbar .btn-outline-secondary:hover {
+            background: #fff !important;
+            color: #1976d2 !important;
         }
         .container-box {
-            max-width: 800px;
-            margin: 80px auto;
-            padding: 30px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            max-width: 700px;
+            margin: 0;
+            padding: 36px 36px 28px 36px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(25, 118, 210, 0.12);
+            border: 1px solid #e3f0ff;
             text-align: center;
         }
+        .container-box h2,
+        .container-box h4,
+        .container-box h5 {
+            text-align: center;
+            width: 100%;
+        }
+        .alert-info {
+            background: linear-gradient(90deg, #e3f0ff 0%, #bbdefb 100%);
+            color: #1976d2;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+        }
+        .progress {
+            background: #e3f0ff;
+            border-radius: 10px;
+            height: 22px;
+        }
         .progress-bar {
-            transition: width 1.5s ease-in-out;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .list-group-item {
+            border: none;
+            background: #f8fbff;
+            color: #1976d2;
+            font-weight: 500;
+            font-size: 1.08rem;
+            margin-bottom: 2px;
+            text-align: left;
+        }
+        .chart-comparison-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 1.5rem;
+        }
+        .chart-container {
+            background: #f8fbff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.06);
+            padding: 18px 10px 10px 10px;
+            min-width: 240px;
+            flex: 1 1 260px;
+            max-width: 320px;
+            margin: 0;
+            text-align: center;
+        }
+        .btn-secondary, .btn-success, .btn-danger {
+            font-weight: 600;
+            font-size: 1.05rem;
+            border-radius: 8px;
+            margin: 0 6px 6px 0;
+        }
+        .btn-secondary {
+            background: #1976d2;
+            border: none;
+        }
+        .btn-success {
+            background: #43a047;
+            border: none;
+        }
+        .btn-danger {
+            background: #e53935;
+            border: none;
+        }
+        @media (max-width: 800px) {
+            .chart-comparison-row {
+                flex-direction: column;
+                align-items: center;
+            }
+            .container-box {
+                padding: 18px 4vw 18px 4vw;
+            }
         }
     </style>
 </head>
 <body>
 
 <!-- Navigation Bar -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm fixed-top">
-    <div class="container">
-        <a class="navbar-brand fw-bold text-primary" href="/">Am I Diabetic?</a>
-        <div class="collapse navbar-collapse justify-content-end">
-            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary me-2"><i class="fas fa-chart-line"></i> Dashboard</a>
-            <a href="{{ url_for('home') }}" class="btn btn-outline-primary"><i class="fas fa-home"></i> Back to Home</a>
-        </div>
+<nav class="navbar navbar-expand-lg custom-navbar mb-4">
+  <div class="container">
+    <a class="navbar-brand" href="/">Am I Diabetic?</a>
+    <div class="ms-auto">
+      <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary me-2"><i class="fas fa-chart-line"></i> Dashboard</a>
+      <a href="{{ url_for('home') }}" class="btn btn-outline-primary"><i class="fas fa-home"></i> Back to Home</a>
     </div>
+  </div>
 </nav>
 
 <!-- Result Display with Two-Column Layout -->
-<div class="container mt-5 pt-5">
+<div class="main-center-wrapper">
     <div class="container-box">
         <h2 class="text-success">Your Diabetes Prediction Result</h2>
         <div class="alert alert-info p-3">
@@ -87,9 +200,9 @@
             </ul>
         </div>
 
-        <!-- Two Small Line Charts Side-by-Side for HbA1c & Blood Glucose -->
+        <!-- Health Indicators Comparison -->
         <h4 class="mt-4">Health Indicators Comparison</h4>
-        <div class="d-flex justify-content-center flex-wrap">
+        <div class="chart-comparison-row">
             <div class="chart-container">
                 <h5>HbA1c Level</h5>
                 <canvas id="hba1cChart"></canvas>

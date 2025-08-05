@@ -14,9 +14,41 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             position: relative;
         }
+        .custom-navbar {
+            background: linear-gradient(90deg, #1976d2 0%, #42a5f5 100%);
+            min-height: 70px;
+            box-shadow: 0 4px 16px rgba(25, 118, 210, 0.08);
+        }
+        .custom-navbar .navbar-brand {
+            color: #fff !important;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
+        }
+        .custom-navbar .btn,
+        .custom-navbar .nav-link {
+            color: #fff !important;
+            border-color: #fff !important;
+            font-weight: 500;
+            margin-left: 0.5rem;
+            margin-right: 0.5rem;
+            transition: background 0.2s, color 0.2s;
+        }
+        .custom-navbar .btn-outline-primary:hover,
+        .custom-navbar .btn-outline-secondary:hover {
+            background: #fff !important;
+            color: #1976d2 !important;
+        }
     </style>
 </head>
 <body>
+
+    <nav class="navbar navbar-expand-lg custom-navbar mb-4">
+  <div class="container">
+    <a class="navbar-brand" href="/">Am I Diabetic?</a>
+  </div>
+</nav>
 
     <div class="container">
         <div class="form-container">

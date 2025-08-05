@@ -289,41 +289,19 @@ def predict():
             'hypertension': hypertension
         })
 
-        return redirect(url_for('result'))
-
-
-    except Exception as e:
-        flash(f"Prediction error: {str(e)}", "danger")
-        return redirect(url_for('home'))
-
-
-
-
-        # Check if `user_id` exists
+        # Save prediction and user input to the database
         user_id = current_user.id if hasattr(current_user, 'id') else None
-        if user_id is None:
+        if user_id is not None:
+            cursor.execute("""
+                INSERT INTO user_records (user_id, age, bmi, HbA1c_level, blood_glucose_level, 
+                    gender, smoking_history, heart_disease, hypertension, prediction) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (user_id, age, bmi, HbA1c_level, blood_glucose_level, gender, smoking_history, heart_disease, hypertension, result))
+            db.commit()
+            print(f"DEBUG: Successfully saved prediction to database for user {user_id}")
+        else:
             flash("Error: Unable to fetch user ID. Please log in again.", "danger")
             return redirect(url_for('login'))
-
-        # Store user input & prediction in `user_records`
-        cursor.execute("""
-            INSERT INTO user_records (user_id, age, bmi, HbA1c_level, blood_glucose_level, 
-                gender, smoking_history, heart_disease, hypertension, prediction) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (user_id, age, bmi, HbA1c_level, blood_glucose_level, gender, smoking_history, heart_disease, hypertension, result))
-
-        db.commit()  # Save to database
-
-        # Store prediction in session for display on `/result`
-        session['prediction'] = result
-        session['age'] = age
-        session['bmi'] = bmi
-        session['HbA1c_level'] = HbA1c_level
-        session['blood_glucose_level'] = blood_glucose_level
-        session['gender'] = gender
-        session['smoking_history'] = smoking_history
-        session['heart_disease'] = heart_disease
-        session['hypertension'] = hypertension
 
         return redirect(url_for('result'))  # Redirect to `/result`
 
@@ -413,10 +391,11 @@ from reportlab.lib.pagesizes import letter
 
 
 @app.route('/export_pdf')
+@login_required
 def export_pdf():
     try:
-        # Fetch user data from session
-        user_name = session.get('user_name', 'Unknown User')
+        # Get user name from current_user instead of session
+        user_name = current_user.username if hasattr(current_user, 'username') else 'Unknown User'
         age = session.get('age', 0)
         bmi = float(session.get('bmi', 0))
         HbA1c_level = float(session.get('HbA1c_level', 0))
@@ -434,17 +413,70 @@ def export_pdf():
 
         # Generate personalized feedback
         feedback = f"Dear {user_name},\n\n"
+        feedback += f"Thank you for using our Diabetes Prediction System. Based on your health indicators, here is your personalized assessment:\n\n"
+        
         if risk_level == "High Risk":
-            feedback += "⚠️ You are at HIGH risk for diabetes. It is strongly advised to consult a doctor immediately.\n"
-            feedback += "🔹 Reduce sugar intake and follow a strict low-carb diet.\n"
-            feedback += "🔹 Engage in daily physical activities such as walking or cardio exercises.\n"
+            feedback += "🚨 **HIGH RISK ALERT** 🚨\n\n"
+            feedback += "Your results indicate a HIGH risk for diabetes. This requires immediate attention and medical consultation.\n\n"
+            feedback += "**What this means:**\n"
+            feedback += "• Your HbA1c level (≥6.5%) or blood glucose level (≥200 mg/dL) suggests diabetes\n"
+            feedback += "• Immediate medical intervention is strongly recommended\n"
+            feedback += "• Lifestyle changes alone may not be sufficient\n\n"
+            feedback += "**Immediate Actions Required:**\n"
+            feedback += "• Schedule an appointment with your doctor within the next week\n"
+            feedback += "• Request a comprehensive diabetes screening\n"
+            feedback += "• Consider consulting an endocrinologist\n"
+            feedback += "• Start monitoring your blood sugar levels daily\n\n"
+            feedback += "**Emergency Signs to Watch For:**\n"
+            feedback += "• Excessive thirst and frequent urination\n"
+            feedback += "• Unexplained weight loss\n"
+            feedback += "• Fatigue and blurred vision\n"
+            feedback += "• Slow-healing wounds\n\n"
+            
         elif risk_level == "Moderate Risk (Pre-Diabetes)":
-            feedback += "⚠️ Your results indicate MODERATE risk (Pre-Diabetes). You need to take preventive actions.\n"
-            feedback += "🔹 Maintain a healthy weight and monitor your HbA1c levels regularly.\n"
-            feedback += "🔹 Consider lifestyle changes, including a fiber-rich diet and exercise.\n"
+            feedback += "⚠️ **MODERATE RISK - PRE-DIABETES** ⚠️\n\n"
+            feedback += "Your results indicate MODERATE risk (Pre-Diabetes). This is a critical warning sign that requires immediate lifestyle changes.\n\n"
+            feedback += "**What this means:**\n"
+            feedback += "• Your blood sugar levels are higher than normal but not yet diabetic\n"
+            feedback += "• You have a 50% chance of developing diabetes within 5-10 years\n"
+            feedback += "• This is your opportunity to prevent full diabetes\n\n"
+            feedback += "**Immediate Actions Required:**\n"
+            feedback += "• Consult your doctor for a comprehensive health plan\n"
+            feedback += "• Start a structured diet and exercise program\n"
+            feedback += "• Monitor your blood sugar levels regularly\n"
+            feedback += "• Consider working with a diabetes educator\n\n"
+            feedback += "**Prevention Strategies:**\n"
+            feedback += "• Lose 5-10% of your body weight if overweight\n"
+            feedback += "• Exercise for at least 150 minutes per week\n"
+            feedback += "• Follow a low-glycemic index diet\n"
+            feedback += "• Get adequate sleep (7-9 hours per night)\n\n"
+            
         else:
-            feedback += "✅ Your risk level is LOW. Keep maintaining a healthy lifestyle.\n"
-            feedback += "🔹 Continue a balanced diet and engage in regular exercise.\n"
+            feedback += "✅ **LOW RISK - GOOD NEWS** ✅\n\n"
+            feedback += "Your results indicate LOW risk for diabetes. Your current health indicators are within normal ranges.\n\n"
+            feedback += "**What this means:**\n"
+            feedback += "• Your blood sugar levels are currently healthy\n"
+            feedback += "• Continue maintaining your healthy lifestyle\n"
+            feedback += "• Regular monitoring is still important\n\n"
+            feedback += "**Maintenance Recommendations:**\n"
+            feedback += "• Continue your current healthy habits\n"
+            feedback += "• Schedule annual health checkups\n"
+            feedback += "• Monitor your weight and blood pressure\n"
+            feedback += "• Stay physically active and eat a balanced diet\n\n"
+            feedback += "**Prevention Tips:**\n"
+            feedback += "• Maintain a healthy weight\n"
+            feedback += "• Exercise regularly (30+ minutes daily)\n"
+            feedback += "• Eat plenty of fruits, vegetables, and whole grains\n"
+            feedback += "• Limit processed foods and sugary drinks\n\n"
+
+        feedback += "**Important Note:** This assessment is based on the information you provided and should not replace professional medical advice. Always consult with your healthcare provider for personalized medical guidance.\n\n"
+        feedback += "**Next Steps:**\n"
+        feedback += "• Schedule a follow-up with your doctor\n"
+        feedback += "• Continue monitoring your health indicators\n"
+        feedback += "• Consider regular diabetes screening if you have risk factors\n"
+        feedback += "• Stay informed about diabetes prevention and management\n\n"
+        feedback += "Take care of your health!\n"
+        feedback += "Your Diabetes Prediction Team"
 
         # Health Recommendations
         recommendations = [
