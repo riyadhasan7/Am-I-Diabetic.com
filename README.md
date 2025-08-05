@@ -69,7 +69,7 @@ The final model (Gradient Boosting) was selected based on performance metrics (a
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/am-i-diabetic.git
+   git clone https://github.com/riyadhasan7/am-i-diabetic.git
    cd am-i-diabetic
 
  2. **Run the app**
