@@ -31,13 +31,32 @@ mail = Mail(app)
 s = URLSafeTimedSerializer(app.secret_key)
 
 # Connect to MySQL Database
-db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="riad3214321?",
-    database="diabetes_db",
-    auth_plugin="mysql_native_password"
-)
+import time
+import mysql.connector
+from mysql.connector import Error
+
+max_retries = 10
+retry_delay = 5  # seconds
+
+for attempt in range(max_retries):
+    try:
+        db = mysql.connector.connect(
+            host="db",  # must match the service name in docker-compose
+            user="root",
+            password="riad3214321?",
+            database="diabetes_db",
+            auth_plugin="mysql_native_password"
+        )
+        if db.is_connected():
+            print("✅ Connected to MySQL database.")
+            break
+    except Error as e:
+        print(f"⏳ Attempt {attempt + 1} failed: {e}")
+        time.sleep(retry_delay)
+else:
+    print("❌ Could not connect to MySQL after several attempts.")
+    exit(1)
+
 cursor = db.cursor()
 
 
@@ -539,4 +558,4 @@ def export_pdf():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=3000)

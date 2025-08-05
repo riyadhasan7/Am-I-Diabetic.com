@@ -1,3 +1,4 @@
+services:
   db:
     image: mysql:5.7
     restart: always
@@ -12,17 +13,17 @@
 
   web:
     build: .
-    image: python:3.11-bookworm
     ports:
       - "3000:3000"
     depends_on:
       - db
     environment:
       DB_HOST: db
-      DB_PORT : 3306
+      DB_PORT: 3306
       DB_USER: root
       DB_PASSWORD: riad3214321?
       DB_NAME: diabetes_db
 
 volumes:
   db_data:
+
