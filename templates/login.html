@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Make it responsive -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
     <style>
         .form-container {
             max-width: 400px;
-            margin: 50px auto;
+            width: 100%;
             padding: 20px;
             background: #f8f9fa;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            position: relative;
         }
         .custom-navbar {
             background: linear-gradient(90deg, #1976d2 0%, #42a5f5 100%);
@@ -40,6 +40,14 @@
             background: #fff !important;
             color: #1976d2 !important;
         }
+
+        /* Small screen adjustments */
+        @media (max-width: 576px) {
+            .form-container {
+                margin: 20px 15px;
+                padding: 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -50,7 +58,7 @@
       </div>
     </nav>
 
-    <div class="container">
+    <div class="container d-flex justify-content-center">
         <div class="form-container">
 
             <h2 class="text-center">Login</h2>

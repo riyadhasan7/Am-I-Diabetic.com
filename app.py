@@ -41,7 +41,7 @@ retry_delay = 5  # seconds
 for attempt in range(max_retries):
     try:
         db = mysql.connector.connect(
-            host="db",  # must match the service name in docker-compose
+            host="db",
             user="root",
             password="riad3214321?",
             database="diabetes_db",
