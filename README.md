@@ -75,3 +75,7 @@ The final model (Gradient Boosting) was selected based on performance metrics (a
  2. **Run the app**
     ```bash
     docker compose up --build -d
+    
+ 3. **View the web app**
+    ```bash
+    <public-ip-address>:80
